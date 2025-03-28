@@ -3,6 +3,7 @@ from src.settings import settings
 from src.service.auth.payload import PayloadService
 from src.models.user import User
 
+
 class TokenService:
     def __init__(self, payload_service: PayloadService):
         self.payload_service = payload_service
@@ -31,4 +32,4 @@ class TokenService:
         """Генерирует токены и устанавливает их в куки."""
         tokens = self.payload_service.generate_tokens(user)
         self.set_auth_cookies(response, tokens)
-        return tokens 
+        return tokens

@@ -1,5 +1,5 @@
+from src.models.user import User
 from src.crud.base import BaseDAO
-from src.models import User
 
 
 class UserDAO(BaseDAO):

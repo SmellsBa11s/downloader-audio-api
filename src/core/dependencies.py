@@ -45,10 +45,10 @@ async def get_current_user(
         raise HTTPException(status_code=403, detail="Пользователь деактивирован")
     return user
 
+
 async def get_admin_user(
     user: User = Depends(get_current_user),
 ) -> User:
     if not user.is_supervisor:
         raise HTTPException(status_code=403, detail="У вас нет прав администратора")
     return user
-
