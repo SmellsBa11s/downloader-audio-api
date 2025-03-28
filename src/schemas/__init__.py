@@ -1,5 +1,13 @@
-from src.schemas.auth import *
-from src.schemas.users import *
-from src.schemas.image import *
+from src.schemas.audio import AudioInfo, AudioResponse, AudioFullInfo
+from src.schemas.users import UserInfo, UpdateUserInfo
+from src.schemas.auth import AuthResponse, RedirectResponse
 
-__all__ = ["Auth", "User", "UserInfo", "UpdateUserInfo", "Image"]
+__all__ = [
+    "AudioResponse",
+    "AudioInfo",
+    "UserInfo",
+    "UpdateUserInfo",
+    "AuthResponse",
+    "RedirectResponse",
+    "AudioFullInfo",
+]
