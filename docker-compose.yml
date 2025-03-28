@@ -5,12 +5,12 @@ services:
     restart: always
     user: postgres
     volumes:
-      - university-db-data:/var/lib/postgresql/data
+      - audio_downloader-db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     command: -p 5432
     environment:
-      - POSTGRES_DB=university
+      - POSTGRES_DB=audio_downloader
       - POSTGRES_PASSWORD=postgres
     healthcheck:
       test: [ "CMD", "pg_isready" ]
@@ -18,7 +18,7 @@ services:
       timeout: 1s
       retries: 50
     networks:
-      - university-network
+      - audio_downloader-network
   adminer:
     image: bergalath/adminer-dracula:4.8.1-4
     restart: unless-stopped
@@ -29,9 +29,9 @@ services:
       - ADMINER_DEFAULT_PORT=5432
       - ADMINER_DESIGN=dracula
     networks:
-      - university-network
+      - audio_downloader-network
   app:
-    container_name: kanban-api
+    container_name: audio-downloader-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -47,10 +47,10 @@ services:
       db:
         condition: service_healthy
     networks:
-      - university-network
+      - audio_downloader-network
 
 volumes:
-  university-db-data:
+  audio_downloader-db-data:
 networks:
-  university-network:
+  audio_downloader-network:
     driver: bridge
