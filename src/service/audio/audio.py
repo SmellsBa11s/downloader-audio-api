@@ -40,12 +40,13 @@ class AudioService:
         self._media_dir = settings.MEDIA_DIR
         os.makedirs(self._media_dir, exist_ok=True)
 
-    async def upload_audio(self, user: User, file: UploadFile) -> AudioResponse:
+    async def upload_audio(self, user: User, file: UploadFile, user_filename: str) -> AudioResponse:
         """Upload an audio file and save its information to the database.
 
         Args:
             user (User): The user uploading the file
             file (UploadFile): The audio file to upload
+            user_filename (str): Name given to the file by the user
 
         Returns:
             AudioResponse: Information about the uploaded file
@@ -65,12 +66,17 @@ class AudioService:
         await self._storage.save_file(file, file_path, content)
 
         audio_info = AudioInfo(
-            filename=unique_filename, user_id=user.id, path=file_path, size=file_size
+            filename=unique_filename,
+            user_filename=user_filename,
+            user_id=user.id,
+            path=file_path,
+            size=file_size
         )
         await self._audio_dao.add(audio_info)
 
         return AudioResponse(
             filename=unique_filename,
+            user_filename=user_filename,
             content_type=file.content_type,
             path=file_path,
             size=file_size,

@@ -9,12 +9,14 @@ class AudioResponse(BaseModel):
 
     Attributes:
         filename (str): Name of the audio file
+        user_filename (str): Name given to the file by the user
         content_type (str): MIME type of the audio file
         path (str): Path to the audio file in storage
         size (int): Size of the audio file in bytes
     """
 
     filename: str
+    user_filename: str
     content_type: str
     path: str
     size: int
@@ -27,12 +29,14 @@ class AudioInfo(BaseModel):
 
     Attributes:
         filename (str): Name of the audio file
+        user_filename (str): Name given to the file by the user
         user_id (int): ID of the user who owns the file
         path (str): Path to the audio file in storage
         size (int): Size of the audio file in bytes
     """
 
     filename: str
+    user_filename: str
     user_id: int
     path: str
     size: int

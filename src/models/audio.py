@@ -12,6 +12,7 @@ class AudioInfo(Base):
     Attributes:
         id (int): Primary key, auto-incrementing
         filename (str): Name of the audio file
+        user_filename (str): Name given to the file by the user
         path (str): Path to the audio file in storage
         size (int): Size of the audio file in bytes
         user_id (int): Foreign key to the user who owns the file
@@ -23,6 +24,7 @@ class AudioInfo(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     filename: Mapped[str] = mapped_column(nullable=False)
+    user_filename: Mapped[str] = mapped_column(nullable=False)
     path: Mapped[str] = mapped_column(nullable=False)
     size: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(

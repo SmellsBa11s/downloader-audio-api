@@ -10,6 +10,7 @@ router = APIRouter()
 
 @router.post("/upload-audio/")
 async def upload_user_audio(
+    file_name: str,
     user: User = Depends(get_current_user),
     file: UploadFile = File(...),
     audio_service: AudioService = Depends(AudioService),
@@ -20,6 +21,7 @@ async def upload_user_audio(
     The file is validated, stored, and its information is saved in the database.
 
     Args:
+        file_name (str): Name given to the file by the user
         user (User): Current authenticated user
         file (UploadFile): The audio file to upload
         audio_service (AudioService): Service for handling audio operations
@@ -30,7 +32,7 @@ async def upload_user_audio(
     Raises:
         HTTPException: 400 if file validation fails
     """
-    result = await audio_service.upload_audio(user=user, file=file)
+    result = await audio_service.upload_audio(user=user, file=file, user_filename=file_name)
     return result
 
 

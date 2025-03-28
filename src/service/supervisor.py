@@ -140,6 +140,7 @@ class SupervisorService:
             AudioFullInfo(
                 audio_id=audio.id,
                 filename=audio.filename,
+                user_filename=audio.user_filename,
                 is_deleted=audio.is_deleted,
                 user_id=audio.user_id,
                 path=audio.path,
