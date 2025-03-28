@@ -11,15 +11,14 @@ class Settings(BaseSettings):
 
     YANDEX_CLIENT_ID: str
     YANDEX_CLIENT_SECRET: str
-    YANDEX_REDIRECT_URI: str
     YANDEX_REDIRECT_URL: str
 
     DATABASE_URL: str
+    MEDIA_DIR: str
 
     class Config:
         env_file = ".env"
         extra = "allow"
-
 
 
 settings = Settings()
