@@ -5,6 +5,20 @@ from datetime import datetime
 
 
 class AudioInfo(Base):
+    """SQLAlchemy model for audio files.
+
+    This model represents audio files in the database with their metadata.
+
+    Attributes:
+        id (int): Primary key, auto-incrementing
+        filename (str): Name of the audio file
+        path (str): Path to the audio file in storage
+        size (int): Size of the audio file in bytes
+        user_id (int): Foreign key to the user who owns the file
+        is_deleted (bool): Flag indicating if the file is deleted
+        created_at (datetime): Timestamp when the file was created
+    """
+
     __tablename__ = "audio_info"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

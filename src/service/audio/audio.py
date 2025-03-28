@@ -13,20 +13,46 @@ from src.settings import settings
 
 
 class AudioService:
-    """Сервис для работы с аудио файлами."""
+    """Service for handling audio file operations.
+
+    This service provides functionality for uploading, managing, and deleting audio files.
+    It handles file storage, validation, and database operations.
+
+    Attributes:
+        _audio_dao (AudioDAO): Data access object for audio operations
+        _storage (FileStorage): Storage service for file operations
+        _media_dir (str): Directory for storing media files
+    """
 
     def __init__(
         self,
         audio_dao: AudioDAO = Depends(),
         storage: FileStorage = Depends(LocalFileStorage),
     ):
+        """Initialize the audio service.
+
+        Args:
+            audio_dao (AudioDAO): Data access object for audio operations
+            storage (FileStorage): Storage service for file operations
+        """
         self._audio_dao = audio_dao
         self._storage = storage
         self._media_dir = settings.MEDIA_DIR
         os.makedirs(self._media_dir, exist_ok=True)
 
     async def upload_audio(self, user: User, file: UploadFile) -> AudioResponse:
-        """Загружает аудио файл и сохраняет информацию в БД."""
+        """Upload an audio file and save its information to the database.
+
+        Args:
+            user (User): The user uploading the file
+            file (UploadFile): The audio file to upload
+
+        Returns:
+            AudioResponse: Information about the uploaded file
+
+        Raises:
+            HTTPException: 400 if file validation fails
+        """
         FileValidator.validate_audio(file)
 
         file_extension = file.filename.split(".")[-1]
@@ -53,13 +79,25 @@ class AudioService:
     async def delete_audio(
         self, audio_id: int, user: User, full_delete: bool = False
     ) -> None:
-        """Удаляет аудио файл и его информацию из БД."""
+        """Delete an audio file and its information from the database.
+
+        Args:
+            audio_id (int): ID of the audio file to delete
+            user (User): The user requesting the deletion
+            full_delete (bool, optional): If True, permanently delete the file.
+                If False, only mark it as deleted. Defaults to False.
+
+        Raises:
+            HTTPException:
+                403 - If user doesn't have permission to delete the file
+                404 - If audio file not found
+        """
         audio = await self._audio_dao.find_one(id=audio_id, is_deleted=False)
 
         if (audio.user_id != user.id) and not (user.is_supervisor):
             raise HTTPException(
                 status_code=403,
-                detail="У вас недостаточно прав для удаления этого аудио файла",
+                detail="You don't have permission to delete this audio file",
             )
 
         if full_delete:

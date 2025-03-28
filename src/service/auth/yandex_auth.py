@@ -9,17 +9,38 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class YandexAuthService:
+    """Service for handling Yandex OAuth authentication.
+
+    This service provides functionality for authenticating users through
+    Yandex OAuth and managing user data.
+
+    Attributes:
+        _user_dao (UserDAO): Data access object for user operations
+    """
+
     def __init__(self, user_dao: UserDAO = Depends()):
-        """Initializes DAO for working with users.
+        """Initialize YandexAuthService with user DAO.
 
         Args:
-            user_dao (UserDAO): DAO for working with users
+            user_dao (UserDAO): Data access object for user operations
         """
         self._user_dao = user_dao
 
     @staticmethod
     async def get_yandex_user(code: str) -> dict:
-        """Получает данные пользователя от Яндекс OAuth."""
+        """Get user data from Yandex OAuth.
+
+        Authenticates with Yandex OAuth and retrieves user information.
+
+        Args:
+            code (str): Authorization code from Yandex OAuth
+
+        Returns:
+            dict: User data from Yandex
+
+        Raises:
+            HTTPException: 400 if authentication fails or user info cannot be retrieved
+        """
         token_url = "https://oauth.yandex.ru/token"
         token_data = {
             "grant_type": "authorization_code",
@@ -47,7 +68,20 @@ class YandexAuthService:
             return user_data
 
     async def authenticate_yandex(self, code: str) -> User:
-        """Авторизация/регистрация через Яндекс."""
+        """Authenticate or register user through Yandex.
+
+        This method handles both authentication of existing users and
+        registration of new users through Yandex OAuth.
+
+        Args:
+            code (str): Authorization code from Yandex OAuth
+
+        Returns:
+            User: Authenticated or newly created user
+
+        Raises:
+            HTTPException: 400 if authentication fails
+        """
         yandex_data = await self.get_yandex_user(code)
 
         user = await self._user_dao.find_one_or_none(yandex_id=yandex_data["id"])
