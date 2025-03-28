@@ -4,7 +4,9 @@ from sqlalchemy import insert, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+
 from src.core.db.database import get_async_db
+from src.core.decorators import handle_db_errors
 
 
 class BaseDAO:
@@ -28,6 +30,7 @@ class BaseDAO:
         """
         self.session = session
 
+    @handle_db_errors
     async def add(self, data: dict | BaseModel):
         """Creates a new record in the database.
 
@@ -42,18 +45,15 @@ class BaseDAO:
             ValueError: For empty or invalid data
             SQLAlchemyError: For database operation errors
         """
-        try:
-            if isinstance(data, BaseModel):
-                data = data.model_dump()
+        if isinstance(data, BaseModel):
+            data = data.model_dump()
 
-            query = insert(self.model).values(**data).returning(self.model)
-            result = await self.session.execute(query)
-            await self.session.commit()
-            return result.scalar_one()
-        except Exception as e:
-            await self.session.rollback()
-            raise HTTPException(status_code=409, detail=f"Database error: {str(e)}")
+        query = insert(self.model).values(**data).returning(self.model)
+        result = await self.session.execute(query)
+        await self.session.commit()
+        return result.scalar_one()
 
+    @handle_db_errors
     async def find_one(self, **filter_by):
         """Finds one record by given filters.
 
@@ -74,6 +74,7 @@ class BaseDAO:
             )
         return result
 
+    @handle_db_errors
     async def find_one_or_none(self, **filter_by):
         """Finds one record by given filters.
 
@@ -88,6 +89,7 @@ class BaseDAO:
         res = await self.session.execute(query)
         return res.scalar_one_or_none()
 
+    @handle_db_errors
     async def find_all(self, **filter_by):
         """Finds all records by given filters.
 
@@ -102,6 +104,7 @@ class BaseDAO:
         result = await self.session.execute(query)
         return result.scalars().all()
 
+    @handle_db_errors
     async def delete(self, model_id: int):
         """Deletes a record by ID.
 
@@ -122,9 +125,9 @@ class BaseDAO:
         stmt = delete(self.model).where(self.model.id == model_id)
         await self.session.execute(stmt)
         await self.session.commit()
-
         return True
 
+    @handle_db_errors
     async def update(self, model_id: int, **update_data):
         """Updates a record by ID.
 
@@ -137,26 +140,21 @@ class BaseDAO:
             model | None: Updated model object
                 or None if record was not found
         """
-        try:
-            query = select(self.model).filter_by(id=model_id)
-            result = await self.session.execute(query)
-            if not result.scalar_one_or_none():
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"{self.model.__name__} with id {model_id} not found",
-                )
-
-            stmt = (
-                update(self.model)
-                .where(self.model.id == model_id)
-                .values(**update_data)
-                .returning(self.model)
+        query = select(self.model).filter_by(id=model_id)
+        result = await self.session.execute(query)
+        if not result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=404,
+                detail=f"{self.model.__name__} with id {model_id} not found",
             )
-            result = await self.session.execute(stmt)
-            await self.session.commit()
 
-            return result.scalars().all()
+        stmt = (
+            update(self.model)
+            .where(self.model.id == model_id)
+            .values(**update_data)
+            .returning(self.model)
+        )
+        result = await self.session.execute(stmt)
+        await self.session.commit()
 
-        except Exception as e:
-            await self.session.rollback()
-            raise HTTPException(status_code=409, detail=f"Database error: {str(e)}")
+        return result.scalars().all()
