@@ -1,5 +1,4 @@
 from src.models.user import User
-from src.models.image import ImageInfo
+from src.models.audio import AudioInfo
 
-__all__ = ["User", "ImageInfo"]
-
+__all__ = ["User", "AudioInfo"]
