@@ -22,7 +22,10 @@ class AudioService:
         _audio_dao (AudioDAO): Data access object for audio operations
         _storage (FileStorage): Storage service for file operations
         _media_dir (str): Directory for storing media files
+        MAX_FILENAME_LENGTH (int): Maximum allowed length for user filename
     """
+
+    MAX_FILENAME_LENGTH = 100 
 
     def __init__(
         self,
@@ -40,6 +43,29 @@ class AudioService:
         self._media_dir = settings.MEDIA_DIR
         os.makedirs(self._media_dir, exist_ok=True)
 
+    def _process_filename(self, filename: str) -> str:
+        """Process and validate filename.
+
+        Args:
+            filename (str): Original filename
+
+        Returns:
+            str: Processed filename with length limit
+
+        Raises:
+            HTTPException: 400 if filename is empty
+        """
+        if not filename:
+            raise HTTPException(
+                status_code=400,
+                detail="Filename cannot be empty"
+            )
+        
+        if len(filename) > self.MAX_FILENAME_LENGTH:
+            filename = filename[:self.MAX_FILENAME_LENGTH]
+        
+        return filename
+
     async def upload_audio(self, user: User, file: UploadFile, user_filename: str) -> AudioResponse:
         """Upload an audio file and save its information to the database.
 
@@ -56,8 +82,10 @@ class AudioService:
         """
         FileValidator.validate_audio(file)
 
+        processed_filename = self._process_filename(user_filename)
+        
         file_extension = file.filename.split(".")[-1]
-        unique_filename = f"user_{user.id}_{uuid4()}.{file_extension}"
+        unique_filename = f"user_{processed_filename}_{uuid4()}.{file_extension}"
         file_path = os.path.join(self._media_dir, unique_filename)
 
         content = await file.read()
@@ -67,7 +95,7 @@ class AudioService:
 
         audio_info = AudioInfo(
             filename=unique_filename,
-            user_filename=user_filename,
+            user_filename=processed_filename,
             user_id=user.id,
             path=file_path,
             size=file_size
@@ -76,7 +104,7 @@ class AudioService:
 
         return AudioResponse(
             filename=unique_filename,
-            user_filename=user_filename,
+            user_filename=processed_filename,
             content_type=file.content_type,
             path=file_path,
             size=file_size,
