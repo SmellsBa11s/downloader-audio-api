@@ -32,7 +32,9 @@ async def upload_user_audio(
     Raises:
         HTTPException: 400 if file validation fails
     """
-    result = await audio_service.upload_audio(user=user, file=file, user_filename=file_name)
+    result = await audio_service.upload_audio(
+        user=user, file=file, user_filename=file_name
+    )
     return result
 
 

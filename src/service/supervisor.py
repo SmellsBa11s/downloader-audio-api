@@ -119,7 +119,9 @@ class SupervisorService:
         await self._user_dao.update(model_id=user_id, is_active=True)
         return True
 
-    async def get_user_audio(self, user_id: int, include_deleted: bool = False) -> list[AudioFullInfo]:
+    async def get_user_audio(
+        self, user_id: int, include_deleted: bool = False
+    ) -> list[AudioFullInfo]:
         """Get list of user's audio files.
 
         Args:
@@ -135,7 +137,9 @@ class SupervisorService:
         if include_deleted:
             audio_files = await self._audio_dao.find_all(user_id=user_id)
         else:
-            audio_files = await self._audio_dao.find_all(user_id=user_id, is_deleted=False)
+            audio_files = await self._audio_dao.find_all(
+                user_id=user_id, is_deleted=False
+            )
         return [
             AudioFullInfo(
                 audio_id=audio.id,

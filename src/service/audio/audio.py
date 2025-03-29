@@ -25,7 +25,7 @@ class AudioService:
         MAX_FILENAME_LENGTH (int): Maximum allowed length for user filename
     """
 
-    MAX_FILENAME_LENGTH = 100 
+    MAX_FILENAME_LENGTH = 100
 
     def __init__(
         self,
@@ -56,17 +56,16 @@ class AudioService:
             HTTPException: 400 if filename is empty
         """
         if not filename:
-            raise HTTPException(
-                status_code=400,
-                detail="Filename cannot be empty"
-            )
-        
+            raise HTTPException(status_code=400, detail="Filename cannot be empty")
+
         if len(filename) > self.MAX_FILENAME_LENGTH:
-            filename = filename[:self.MAX_FILENAME_LENGTH]
-        
+            filename = filename[: self.MAX_FILENAME_LENGTH]
+
         return filename
 
-    async def upload_audio(self, user: User, file: UploadFile, user_filename: str) -> AudioResponse:
+    async def upload_audio(
+        self, user: User, file: UploadFile, user_filename: str
+    ) -> AudioResponse:
         """Upload an audio file and save its information to the database.
 
         Args:
@@ -83,7 +82,7 @@ class AudioService:
         FileValidator.validate_audio(file)
 
         processed_filename = self._process_filename(user_filename)
-        
+
         file_extension = file.filename.split(".")[-1]
         unique_filename = f"user_{processed_filename}_{uuid4()}.{file_extension}"
         file_path = os.path.join(self._media_dir, unique_filename)
@@ -98,7 +97,7 @@ class AudioService:
             user_filename=processed_filename,
             user_id=user.id,
             path=file_path,
-            size=file_size
+            size=file_size,
         )
         await self._audio_dao.add(audio_info)
 

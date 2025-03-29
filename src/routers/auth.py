@@ -44,7 +44,9 @@ async def yandex_callback(
     Raises:
         HTTPException: 400 if authentication fails
     """
-    tokens = await auth_manager.authenticate_and_set_tokens(code=code, response=response)
+    tokens = await auth_manager.authenticate_and_set_tokens(
+        code=code, response=response
+    )
     return AuthResponse(**tokens)
 
 
@@ -93,3 +95,18 @@ async def refresh_token_api(
         raise e
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+
+@router.post("/logout")
+async def logout(response: Response) -> bool:
+    """Logout the user by clearing the authentication cookies.
+
+    This endpoint clears the authentication cookies from the response.
+
+    Args:
+        response (Response): FastAPI response object
+
+    """
+    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="refresh_token")
+    return True

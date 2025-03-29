@@ -56,7 +56,9 @@ async def get_user_audio(
     Raises:
         HTTPException: 404 if user not found
     """
-    return await supervisor_service.get_user_audio(user_id=user_id, include_deleted=include_deleted)
+    return await supervisor_service.get_user_audio(
+        user_id=user_id, include_deleted=include_deleted
+    )
 
 
 @router.put("/{user_id}")
